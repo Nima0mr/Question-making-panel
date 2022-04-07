@@ -177,7 +177,10 @@
         </v-row>
       </v-container>
     </v-footer>
-    <booklets-dialog v-model="bookletsDialog" :quiz="quiz" />
+    <booklets-dialog
+      v-model="bookletsDialog"
+      :quiz="quiz"
+    />
   </v-container>
 </template>
 
@@ -219,7 +222,7 @@ export default {
           that.$notify({
             group: 'notifs',
             title: 'توجه!',
-            text: 'مشکلی در دریافت اطلاعات آژمون رخ داده است. لطفا دوباره امتحان کنید.',
+            text: 'مشکلی در دریافت اطلاعات آزمون رخ داده است. لطفا دوباره امتحان کنید.',
             type: 'error'
           })
           that.$router.push({name: 'user.exam.list'})
