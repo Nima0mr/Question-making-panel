@@ -31,7 +31,7 @@
       <v-btn
         v-if="showOptions"
         icon
-        @click="changeStatus(source.id, 'o')"
+        @click="changeStatus(source.id, 'o', appSocket)"
       >
         <v-icon
           v-if="getChoiceStatus() === 'o'"
@@ -51,7 +51,7 @@
       <v-btn
         v-if="showOptions"
         icon
-        @click="changeStatus(source.id ,'x')"
+        @click="changeStatus(source.id ,'x', appSocket)"
       >
         <v-icon
           :color="getChoiceStatus() === 'x' ? 'red' : '#888'"
@@ -63,7 +63,7 @@
       <v-btn
         v-if="showOptions"
         icon
-        @click="changeBookmark(source.id)"
+        @click="changeBookmark(source.id, appSocket)"
       >
         <v-icon
           v-if="getChoiceBookmark()"
@@ -108,7 +108,7 @@
         @click="answerClickedd({ questionId: source.id, choiceId: choice.id})"
       >
         <vue-katex
-          :input="(choiceNumber[index]) + choice.title"
+          :input="(getChoiceNumber(index)) + choice.title"
           :ltr="isLtrQuestion"
         />
       </v-col>
@@ -127,6 +127,10 @@
       },
         mixins: [mixinQuiz, mixinUserActionOnQuestion],
         props: {
+            appSocket: {
+              type: Object,
+              default: null
+            },
             index: { // index of current source
                 type: Number
             },
@@ -152,13 +156,7 @@
             return {
                 isRtl: false,
                 widestChoiceWidth: 0,
-                observer: null,
-                choiceNumber: {
-                    0: '1) ',
-                    1: '2) ',
-                    2: '3) ',
-                    3: '4) '
-                }
+                observer: null
             }
         },
       computed: {
@@ -207,6 +205,9 @@
             this.observer.disconnect();
         },
         methods: {
+        getChoiceNumber (index) {
+          return (index + 1) + ') '
+        },
             getChoiceStatus() {
                 let userQuestionData = this.getUserQuestionData(this.quiz.id, this.source.id)
                 if (!userQuestionData) {
@@ -244,7 +245,7 @@
                 })
             },
             answerClickedd(payload) {
-                this.answerClicked(payload, this.showOptions)
+                this.answerClicked(payload, this.showOptions, () => {}, this.appSocket)
             },
             intersectionObserver(entries) {
                 this.source.isInView = entries[0].intersectionRatio >= 0.75

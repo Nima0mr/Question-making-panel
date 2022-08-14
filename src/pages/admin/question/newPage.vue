@@ -50,6 +50,11 @@
             @remove="navBarAction_remove"
             @logListOpened="showLogList"
           />
+<!--          <v-btn-toggle borderless>-->
+<!--            <v-btn v-for="item in questionTypes" :key="item.id" :value="item.id">-->
+<!--              {{item}}-->
+<!--            </v-btn>-->
+<!--          </v-btn-toggle>-->
           <!-- -------------------------- upload file ---------------------->
           <UploadImg
             v-if="showImgComponentStatus()"
@@ -90,6 +95,7 @@
             :status="edit_status"
             :attaches="selectedQuizzes"
             :exam-list="examList"
+            :categories="categories"
             :sub-categories="subCategoriesList"
             :loading="attachLoading"
             @detach="detachQuestion"
@@ -159,6 +165,7 @@ import Assistant from "@/plugins/assistant";
 import {QuestionStatusList} from "@/models/QuestionStatus";
 import axios from 'axios'
 import ShowImgBottomMode from "@/components/QuestionBank/EditQuestion/ShowImg/ShowImgBottomMode";
+import {QuestCategoryList} from "@/models/QuestCategory";
 
 export default {
   name: 'NewPage',
@@ -215,6 +222,7 @@ export default {
       displayEditQuestion: false,
       currentQuestion: new Question(),
       examList: new ExamList(),
+      categories: new QuestCategoryList(),
       subCategoriesList: new QuestSubcategoryList(),
       questionData: {
         statement: '',
@@ -258,7 +266,8 @@ export default {
       optionDescriptiveQuestionId: null,
       showImgBottomMode : false,
       isImgPanelSideModeVisible : false,
-      isLogListVisible : true
+      isLogListVisible : true,
+      // questionTypes: null
     }
   },
   destroyed() {
@@ -275,6 +284,7 @@ export default {
     let that = this
     axios.get(API_ADDRESS.option.base + '?type=question_type')
         .then(function (response) {
+          // this.questionTypes = response.data.data
           const optionQuestion = response.data.data.find(item => (item.value==='konkur'))
           const optionDescriptiveQuestion = response.data.data.find(item => (item.value==='descriptive'))
           if (!optionQuestion) {
@@ -533,7 +543,8 @@ export default {
       let that = this
       const loadExamListPromise = this.loadExamList()
       const loadSubcategoriesPromise = this.loadSubcategories()
-      Promise.all([loadExamListPromise, loadSubcategoriesPromise])
+      const loadCategoriesPromise = this.loadCategories()
+      Promise.all([loadExamListPromise, loadSubcategoriesPromise, loadCategoriesPromise])
           .then(() => {
             if (that.getPageStatus() !== 'create') {
               that.loadCurrentQuestionData()
@@ -756,6 +767,20 @@ export default {
           })
           .catch(() => {
           })
+    },
+
+    loadCategories () {
+      let that = this
+      return new Promise(function(resolve, reject) {
+        axios.get(API_ADDRESS.questionCategory.base)
+            .then((response) => {
+              that.categories = new QuestCategoryList(response.data.data)
+              resolve()
+            })
+            .catch( () => {
+              reject()
+            })
+      })
     },
 
     makeShowImgPanelVisible(src) {
