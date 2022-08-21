@@ -122,10 +122,14 @@ export default {
     // this.$store.commit('AppLayout/updateLayoutLeftDrawerVisible', false)
   },
   created () {
-    const localData = this.$store.getters['AppLayout/appLayout']
-    Object.assign(this.properties, localData)
+    this.updateLayout()
+    // const localData = this.$store.getters['AppLayout/appLayout']
+    // Object.assign(this.properties, localData)
   },
   methods: {
+    updateLayout () {
+      this.$store.dispatch('AppLayout/updateStore', this.properties)
+    },
     confirmDialogAction (data) {
       if (this.confirmDialogData) this.confirmDialogData.callback(data)
       else {
